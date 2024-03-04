@@ -6,54 +6,54 @@ This is an unofficial webhook solver for [Cert Manager](https://cert-manager.io/
 
 1. Deploy the webhook:
 
-    ```
-    helm install porkbun-webhook ./deploy/porkbun-webhook \
-        --set groupName=<your group>
-    ```
+   ```
+   helm install porkbun-webhook ./deploy/porkbun-webhook \
+       --set groupName=<your group> --namespace=cert-manager
+   ```
 
 2. Create a secret containing your [API key](https://porkbun.com/account/api):
 
-    ```
-    kubectl create secret generic porkbun-key \
-        --from-literal=api-key=<your key> \
-        --from-literal=secret-key=<your key>
-    ```
+   ```
+   kubectl create secret generic porkbun-key \
+       --from-literal=api-key=<your key> \
+       --from-literal=secret-key=<your key>
+   ```
 
 3. Create a role and role binding:
 
-    ```
-    kubectl apply -f rbac.yaml
-    ```
+   ```
+   kubectl apply -f rbac.yaml
+   ```
 
 4. Configure a certificate issuer:
 
-    ```yaml
-    apiVersion: cert-manager.io/v1
-    kind: ClusterIssuer
-    metadata:
-      name: letsencrypt
-    spec:
-      acme:
-        server: https://acme-v02.api.letsencrypt.org/directory
-        email: <your e-mail>
-        privateKeySecretRef:
-          name: letsencrypt-key
-        solvers:
-          - selector:
-              dnsZones:
-                - <your domain>
-            dns01:
-              webhook:
-                groupName: <your group>
-                solverName: porkbun
-                config:
-                  apiKeySecretRef:
-                    name: porkbun-key
-                    key: api-key
-                  secretKeySecretRef:
-                    name: porkbun-key
-                    key: secret-key
-    ```
+   ```yaml
+   apiVersion: cert-manager.io/v1
+   kind: ClusterIssuer
+   metadata:
+     name: letsencrypt
+   spec:
+     acme:
+       server: https://acme-v02.api.letsencrypt.org/directory
+       email: <your e-mail>
+       privateKeySecretRef:
+         name: letsencrypt-key
+       solvers:
+         - selector:
+             dnsZones:
+               - <your domain>
+           dns01:
+             webhook:
+               groupName: <your group>
+               solverName: porkbun
+               config:
+                 apiKeySecretRef:
+                   name: porkbun-key
+                   key: api-key
+                 secretKeySecretRef:
+                   name: porkbun-key
+                   key: secret-key
+   ```
 
 ## Running the test suite
 
